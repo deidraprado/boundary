@@ -15,7 +15,7 @@ jobs:
       regions: ${{steps.setup.outputs.regions}}
     steps:
       - name: Configure AWS credentials
-        if: ${{ github.event.repository.name == 'boundary' }}
+        if: github.repository == 'hashicorp/boundary'
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
@@ -25,7 +25,7 @@ jobs:
           role-skip-session-tagging: true
           role-duration-seconds: 3600
       - name: Assume service user role via Doormat
-        if: ${{ github.event.repository.name != 'boundary' }}
+        if: github.repository != 'hashicorp/boundary'
         uses: hashicorp/doormat-action@main
         with:
           # This role, its associated IAM policy, the allowed Github workflow
@@ -54,7 +54,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Configure AWS credentials
-        if: ${{ github.event.repository.name == 'boundary' }}
+        if: github.repository == 'hashicorp/boundary'
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
@@ -64,7 +64,7 @@ jobs:
           role-skip-session-tagging: true
           role-duration-seconds: 3600
       - name: Assume service user role via Doormat
-        if: ${{ github.event.repository.name != 'boundary' }}
+        if: github.repository != 'hashicorp/boundary'
         uses: hashicorp/doormat-action@main
         with:
           # This role, its associated IAM policy, the allowed Github workflow
@@ -99,7 +99,7 @@ jobs:
         region: ${{ fromJSON(needs.setup.outputs.regions) }}
     steps:
       - name: Configure AWS credentials
-        if: ${{ github.event.repository.name == 'boundary' }}
+        if: github.repository == 'hashicorp/boundary'
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
@@ -109,7 +109,7 @@ jobs:
           role-skip-session-tagging: true
           role-duration-seconds: 3600
       - name: Assume service user role via Doormat
-        if: ${{ github.event.repository.name != 'boundary' }}
+        if: github.repository != 'hashicorp/boundary'
         uses: hashicorp/doormat-action@main
         with:
           # This role, its associated IAM policy, the allowed Github workflow

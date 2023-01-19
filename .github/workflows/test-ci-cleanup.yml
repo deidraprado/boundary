@@ -24,15 +24,15 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_CI }}
           role-skip-session-tagging: true
           role-duration-seconds: 3600
-      - name: Assume service user role via Doormat
-        uses: hashicorp/doormat-action@main
-        if: ${{ github.repository != 'hashicorp/boundary' }}
-        with:
+      #- name: Assume service user role via Doormat
+      #  uses: hashicorp/doormat-action@main
+      #  if: ${{ github.repository != 'hashicorp/boundary' }}
+      #  with:
           # This role, its associated IAM policy, the allowed Github workflow
           # event types and their associated qualifiers are managed via the Terraform module:
           # ./enos/ci/service-user-iam in this repository. If you wish to allow AWS credentials for
           # different Github event types, workflows or branches you'll need to update the role there.
-          aws-role-arn: "${{ secrets.DOORMAT_SERVICE_USER_ROLE_ARN_CI }}"
+      #    aws-role-arn: "${{ secrets.DOORMAT_SERVICE_USER_ROLE_ARN_CI }}"
       - name: Get all regions & account ID
         id: setup
         run: |

@@ -15,8 +15,8 @@ jobs:
       regions: ${{steps.setup.outputs.regions}}
     steps:
       - name: Configure AWS credentials
-        if: ${{ github.repository == 'hashicorp/boundary' }}
         uses: aws-actions/configure-aws-credentials@v1-node16
+        if: ${{ github.repository == 'hashicorp/boundary' }}
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CI }}
@@ -25,8 +25,8 @@ jobs:
           role-skip-session-tagging: true
           role-duration-seconds: 3600
       - name: Assume service user role via Doormat
-        if: ${{ github.repository != 'hashicorp/boundary' }}
         uses: hashicorp/doormat-action@main
+        if: ${{ github.repository != 'hashicorp/boundary' }}
         with:
           # This role, its associated IAM policy, the allowed Github workflow
           # event types and their associated qualifiers are managed via the Terraform module:

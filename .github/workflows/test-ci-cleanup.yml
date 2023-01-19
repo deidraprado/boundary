@@ -37,7 +37,7 @@ jobs:
         id: setup
         run: |
           echo "regions=$(aws ec2 describe-regions --region us-east-1 --output json --query 'Regions[].RegionName' | tr -d '\n ')" >> $GITHUB_OUTPUT
-          echo "account_id=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | awk -F'"' '/"accountId"/ { print $4 }')"
+          echo "account_id=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | awk -F'"' '/"accountId"/ { print $4 }')" >> $GITHUB_OUTPUT
 
   aws-nuke:
     needs: setup

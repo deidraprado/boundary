@@ -14,19 +14,8 @@ jobs:
     outputs:
       regions: ${{steps.setup.outputs.regions}}
     steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        if: ${{ github.repository == 'hashicorp/boundary' }}
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CI }}
-          aws-region: us-east-1
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN_CI }}
-          role-skip-session-tagging: true
-          role-duration-seconds: 3600
       - name: Assume service user role via Doormat
         uses: hashicorp/doormat-action@main
-        if: ${{ github.repository != 'hashicorp/boundary' }}
         continue-on-error: true
         with:
           # This role, its associated IAM policy, the allowed Github workflow
@@ -34,6 +23,16 @@ jobs:
           # ./enos/ci/service-user-iam in this repository. If you wish to allow AWS credentials for
           # different Github event types, workflows or branches you'll need to update the role there.
           aws-role-arn: "${{ secrets.DOORMAT_SERVICE_USER_ROLE_ARN_CI }}"
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        if: ${{ failure() }}
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CI }}
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_CI }}
+          role-skip-session-tagging: true
+          role-duration-seconds: 3600
       - name: Get all regions
         id: setup
         run: |

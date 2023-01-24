@@ -23,7 +23,7 @@ begin;
     select
       credential_purpose::text,
       credential_library_id::text,       credential_library_type::text,              credential_library_name::text,  credential_library_description::text, credential_library_vault_path::text,    credential_library_vault_http_method::text, credential_library_vault_http_request_body::text,
-      credential_library_username::text, credential_library_key_type::text,          credential_library_key_bits,
+      credential_library_username::text, credential_library_key_type_and_bits::text,
       credential_store_id::text,         credential_store_type::text,                credential_store_name::text,    credential_store_description::text,   credential_store_vault_namespace::text, credential_store_vault_address::text,
       target_id::text,                   target_type::text,                          target_name::text,              target_description::text,             target_default_port_number,             target_session_max_seconds,                 target_session_connection_limit,
       project_id::text,                  project_name::text,                         project_description::text,
@@ -38,7 +38,7 @@ begin;
     (
       'injected_application',
       'vscl____wvl1',                    'vault ssh certificate credential library', 'widget ssh admin cert',        'None',                               '/ssh/issue/admin',                     'Not Applicable',                           'Not Applicable',
-      'admin',                           'rsa',                                      4096,
+      'admin',                           'rsa-4096',
       'vs______swvs',                    'vault credential store',                   'small widget vault store',     'None',                               'default',                              'https://small.vault.widget',
       't_________ws',                    'tcp target',                               'Small Widget Target',          'None',                               0,                                      28800,                                      -1,
       'p____swidget',                    'Small Widget Factory',                     'None',

@@ -28,8 +28,7 @@ begin;
     'None',                             -- credential_library_vault_http_request_body,
 
     'Not Applicable',                   -- credential_library_username,
-    'Not Applicable',                   -- credential_library_key_type,
-    -1,                                 -- credential_library_key_bits,
+    'Not Applicable',                   -- credential_library_key_type_and_bits,
 
     'vs_______wvs',                     -- credential_store_id,
     'vault credential store',           -- credential_store_type,

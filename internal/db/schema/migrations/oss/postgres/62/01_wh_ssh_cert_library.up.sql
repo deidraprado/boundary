@@ -1,19 +1,16 @@
 begin;
   alter table wh_credential_dimension
     add column credential_library_username text,
-    add column credential_library_key_type text,
-    add column credential_library_key_bits integer
+    add column credential_library_key_type_and_bits text
   ;
 
   update wh_credential_dimension set
     credential_library_username = 'Not Applicable',
-    credential_library_key_type = 'Not Applicable',
-    credential_library_key_bits = -1;
+    credential_library_key_type_and_bits = 'Not Applicable';
 
   alter table wh_credential_dimension
     alter column credential_library_username type wh_dim_text,
-    alter column credential_library_key_type type wh_dim_text,
-    alter column credential_library_key_bits set  not null
+    alter column credential_library_key_type_and_bits type wh_dim_text
   ;
 
   update wh_credential_dimension set
@@ -46,12 +43,12 @@ begin;
                 else 'Unknown'
               end                                      as credential_library_description,
               case
-                when   vcl.public_id is not null then coalesce(  vcl.vault_path, 'None')
-                when vsccl.public_id is not null then coalesce(vsccl.vault_path, 'None')
+                when   vcl.public_id is not null then vcl.vault_path
+                when vsccl.public_id is not null then vsccl.vault_path
                 else 'Unknown'
               end                                      as credential_library_vault_path,
               case
-                when   vcl.public_id is not null then coalesce(vcl.http_method, 'None')
+                when   vcl.public_id is not null then vcl.http_method
                 when vsccl.public_id is not null then 'Not Applicable'
                 else 'Unknown'
               end                                      as credential_library_vault_http_method,
@@ -61,20 +58,15 @@ begin;
                 else 'Unknown'
               end                                      as credential_library_vault_http_request_body,
               case
-                when vsccl.public_id is not null then coalesce(vsccl.username, 'None')
                 when   vcl.public_id is not null then 'Not Applicable'
+                when vsccl.public_id is not null then vsccl.username
                 else 'Unknown'
               end                                      as credential_library_username,
               case
-                when vsccl.public_id is not null then coalesce(vsccl.key_type, 'None')
                 when   vcl.public_id is not null then 'Not Applicable'
+                when vsccl.public_id is not null then vsccl.key_type || '-' || vsccl.key_bits::text
                 else 'Unknown'
-              end                                      as credential_library_key_type,
-              case
-                when vsccl.public_id is not null then vsccl.key_bits
-                when   vcl.public_id is not null then -1
-                else -1
-              end                                      as credential_library_key_bits,
+              end                                      as credential_library_key_type_and_bits,
               cs.public_id                             as credential_store_id,
               case
                 when vcs is null then 'None'
@@ -123,8 +115,7 @@ begin;
          credential_library_vault_http_method,
          credential_library_vault_http_request_body,
          credential_library_username,
-         credential_library_key_type,
-         credential_library_key_bits,
+         credential_library_key_type_and_bits,
          credential_store_id,
          credential_store_type,
          credential_store_name,
@@ -171,7 +162,7 @@ begin;
     select
       target.key,                    t.credential_purpose,
       t.credential_library_id,       t.credential_library_type,     t.credential_library_name,     t.credential_library_description, t.credential_library_vault_path,    t.credential_library_vault_http_method, t.credential_library_vault_http_request_body,
-      t.credential_library_username, t.credential_library_key_type, t.credential_library_key_bits,
+      t.credential_library_username, t.credential_library_key_type_and_bits,
       t.credential_store_id,         t.credential_store_type,       t.credential_store_name,       t.credential_store_description,   t.credential_store_vault_namespace, t.credential_store_vault_address,
       t.target_id,                   t.target_type,                 t.target_name,                 t.target_description,             t.target_default_port_number,       t.target_session_max_seconds,           t.target_session_connection_limit,
       t.project_id,                  t.project_name,                t.project_description,
@@ -195,7 +186,7 @@ begin;
       insert into wh_credential_dimension (
              credential_purpose,
              credential_library_id,       credential_library_type,     credential_library_name,     credential_library_description, credential_library_vault_path,    credential_library_vault_http_method, credential_library_vault_http_request_body,
-             credential_library_username, credential_library_key_type, credential_library_key_bits,
+             credential_library_username, credential_library_key_type_and_bits,
              credential_store_id,         credential_store_type,       credential_store_name,       credential_store_description,   credential_store_vault_namespace, credential_store_vault_address,
              target_id,                   target_type,                 target_name,                 target_description,             target_default_port_number,       target_session_max_seconds,           target_session_connection_limit,
              project_id,                  project_name,                project_description,
@@ -204,7 +195,7 @@ begin;
       )
       select credential_purpose,
              credential_library_id,       credential_library_type,     credential_library_name,     credential_library_description, credential_library_vault_path,    credential_library_vault_http_method, credential_library_vault_http_request_body,
-             credential_library_username, credential_library_key_type, credential_library_key_bits,
+             credential_library_username, credential_library_key_type_and_bits,
              credential_store_id,         credential_store_type,       credential_store_name,       credential_store_description,   credential_store_vault_namespace, credential_store_vault_address,
              target_id,                   target_type,                 target_name,                 target_description,             target_default_port_number,       target_session_max_seconds,           target_session_connection_limit,
              project_id,                  project_name,                project_description,

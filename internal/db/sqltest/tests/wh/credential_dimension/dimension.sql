@@ -4,7 +4,7 @@ begin;
   insert into wh_credential_dimension (
      credential_purpose,
      credential_library_id,       credential_library_type,            credential_library_name,     credential_library_description, credential_library_vault_path,    credential_library_vault_http_method, credential_library_vault_http_request_body,
-     credential_library_username, credential_library_key_type,        credential_library_key_bits,
+     credential_library_username, credential_library_key_type_and_bits,
      credential_store_id,         credential_store_type,              credential_store_name,       credential_store_description,   credential_store_vault_namespace, credential_store_vault_address,
      target_id,                   target_type,                        target_name,                 target_description,             target_default_port_number,       target_session_max_seconds,           target_session_connection_limit,
      project_id,                  project_name,                       project_description,
@@ -13,7 +13,7 @@ begin;
   ) values (
      'brokered',
      'vl______wvl1',              'vault generic credential library', 'gidget vault library',      'None',                         '/secrets',                       'GET',                                '\x4e6f6e65',
-     'Not Applicable',            'Not Applicable',                   -1,
+     'Not Applicable',            'Not Applicable',
      'vs_______wvs',              'vault credential store',           'widget vault store',        'None',                         'default',                        'https://vault.widget',
      't_________wb',              'tcp target',                       'Big Widget Target',         'None',                         0,                                28800,                                1,
      'p____bwidget',              'Big Widget Factory',               'None',
@@ -33,7 +33,7 @@ begin;
   insert into wh_credential_dimension (
      credential_purpose,
      credential_library_id,       credential_library_type,            credential_library_name,     credential_library_description, credential_library_vault_path,    credential_library_vault_http_method, credential_library_vault_http_request_body,
-     credential_library_username, credential_library_key_type,        credential_library_key_bits,
+     credential_library_username, credential_library_key_type_and_bits,
      credential_store_id,         credential_store_type,              credential_store_name,       credential_store_description,   credential_store_vault_namespace, credential_store_vault_address,
      target_id,                   target_type,                        target_name,                 target_description,             target_default_port_number,       target_session_max_seconds,           target_session_connection_limit,
      project_id,                  project_name,                       project_description,
@@ -42,7 +42,7 @@ begin;
   ) values (
      'brokered',
      'vl______wvl1',              'vault generic credential library', 'gidget vault library',      'None',                         '/secrets',                       'GET',                                '\x4e6f6e65',
-     'Not Applicable',            'Not Applicable',                   -1,
+     'Not Applicable',            'Not Applicable',
      'vs_______wvs',              'vault credential store',           'widget vault store',        'None',                         'default',                        'https://vault.widget',
      't_________wb',              'tcp target',                       'Big Widget Target',         'None',                         0,                                28800,                                1,
      'p____bwidget',              'Big Widget Factory',               'None',

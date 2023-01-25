@@ -1,5 +1,5 @@
 begin;
-  select plan(17);
+  select plan(21);
   select wtt_load('widgets', 'iam', 'kms', 'auth', 'hosts', 'targets', 'credentials');
 
   -- validate default values
@@ -25,7 +25,7 @@ begin;
   select results_eq(
     'select_vault_ssh_cert_libraries',
     $$VALUES
-      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
   );
 
 
@@ -87,8 +87,8 @@ begin;
   select results_eq(
     'select_vault_ssh_cert_libraries',
     $$VALUES
-      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
-      ('vl______vsc3', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc3', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
   );
 
   select results_eq(
@@ -105,7 +105,7 @@ begin;
   select results_eq(
     'select_vault_ssh_cert_libraries',
     $$VALUES
-      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
   );
 
   select results_eq(
@@ -126,10 +126,44 @@ begin;
   select results_eq(
     'select_vault_ssh_cert_libraries',
     $$VALUES
-      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
-      ('vl______vsc4', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
-      ('vl______vsc5', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ecdsa',   256,       null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
-      ('vl______vsc6', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'rsa',     2048,      null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0,    null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc4', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0,    null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc5', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ecdsa',   256,  null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc6', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'rsa',     2048, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
+  );
+
+  prepare update_default_key_bits as
+    update credential_vault_ssh_cert_library
+    set
+      key_type = 'rsa',
+      key_bits = 0
+    where
+      public_id = 'vl______vsc5';
+  select lives_ok('update_default_key_bits');
+  select results_eq(
+    'select_vault_ssh_cert_libraries',
+    $$VALUES
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0,    null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc4', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0,    null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc5', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'rsa',     2048, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc6', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'rsa',     2048, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
+  );
+
+  prepare update_key_type_set_bits_null as
+    update credential_vault_ssh_cert_library
+    set
+      key_type = 'rsa',
+      key_bits = null
+    where
+      public_id = 'vl______vsc4';
+  select lives_ok('update_key_type_set_bits_null');
+  select results_eq(
+    'select_vault_ssh_cert_libraries',
+    $$VALUES
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0,    null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc4', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'rsa',     2048, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc5', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'rsa',     2048, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc6', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'rsa',     2048, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
   );
 
 rollback;

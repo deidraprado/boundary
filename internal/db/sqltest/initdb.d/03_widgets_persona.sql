@@ -315,7 +315,9 @@ begin;
       (project_id, public_id, name)
     values
       ('p____bwidget', 't_________wb', 'Big Widget Target'),
-      ('p____swidget', 't_________ws', 'Small Widget Target');
+      ('p____swidget', 't_________ws', 'Small Widget Target'),
+      ('p____swidget', 't________ws2', 'Small Widget Target 2'),
+      ('p____swidget', 't________ws3', 'Small Widget Target 3');
 
     insert into target_host_set
       (project_id, target_id, host_set_id)
@@ -327,7 +329,9 @@ begin;
       ('p____bwidget', 't_________wb', 's___1wb-plghs'),
       ('p____bwidget', 't_________wb', 's___2wb-plghs'),
       ('p____swidget', 't_________ws', 's___1ws-plghs'),
-      ('p____swidget', 't_________ws', 's___2ws-plghs');
+      ('p____swidget', 't_________ws', 's___2ws-plghs'),
+      ('p____swidget', 't________ws2', 's___1ws-sths'),
+      ('p____swidget', 't________ws3', 's___1ws-sths');
 
   end;
   $$ language plpgsql;
@@ -403,10 +407,11 @@ begin;
       ('vl______wvl12', 'my_username',      'my_private_key',     'my_passphrase');
 
     insert into credential_vault_ssh_cert_library
-      (store_id,       public_id,      name,                    description, vault_path,         username, key_type, key_bits)
+      (store_id,       public_id,      name,                    description, vault_path,         username, key_type,  key_bits)
     values
-      ('vs______swvs', 'vscl____wvl1', 'widget ssh admin cert', 'None',      '/ssh/issue/admin', 'admin',  'rsa',    4096),
-      ('vs______swvs', 'vscl____wvl2', 'widget ssh user cert',  'None',      '/ssh/sign/user',   'user',   'ecdsa',  521);
+      ('vs______swvs', 'vscl____wvl1', 'widget ssh admin cert', 'None',      '/ssh/issue/admin', 'admin',  'rsa',     4096),
+      ('vs______swvs', 'vscl____wvl2', 'widget ssh ecdsa',      'None',      '/ssh/sign/user',   'user',   'ecdsa',   521),
+      ('vs______swvs', 'vscl____wvl3', 'widget ssh ed25519',    'None',      '/ssh/sign/user',   'user',   'ed25519', 0);
 
     insert into target_credential_library
       (project_id,     target_id,      credential_library_id, credential_purpose)
@@ -415,7 +420,9 @@ begin;
       ('p____bwidget', 't_________wb', 'vl______wvl2',        'brokered'),
       ('p____bwidget', 't_________wb', 'vl______wvl3',        'brokered'),
       ('p____bwidget', 't_________wb', 'vl______wvl3',        'injected_application'),
-      ('p____bwidget', 't_________ws', 'vscl____wvl1',        'injected_application');
+      ('p____bwidget', 't_________ws', 'vscl____wvl1',        'injected_application'),
+      ('p____bwidget', 't________ws2', 'vscl____wvl2',        'injected_application'),
+      ('p____bwidget', 't________ws3', 'vscl____wvl3',        'injected_application');
 
     insert into credential_static_store
       (project_id,     public_id,      name,                  description)

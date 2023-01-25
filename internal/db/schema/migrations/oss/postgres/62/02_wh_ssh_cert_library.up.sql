@@ -64,7 +64,11 @@ begin;
               end                                      as credential_library_username,
               case
                 when   vcl.public_id is not null then 'Not Applicable'
-                when vsccl.public_id is not null then vsccl.key_type || '-' || vsccl.key_bits::text
+                when vsccl.public_id is not null then
+                  case
+                    when vsccl.key_type = 'ed25519' then vsccl.key_type
+                    else vsccl.key_type || '-' || vsccl.key_bits::text
+                  end
                 else 'Unknown'
               end                                      as credential_library_key_type_and_bits,
               cs.public_id                             as credential_store_id,

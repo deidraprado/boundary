@@ -12,15 +12,15 @@ begin;
   insert into session
     ( project_id,      target_id,      user_id,        auth_token_id,  certificate,  endpoint, public_id)
   values
-    ('p____swidget',  't_________ws', 'u_____walter', 'tok___walter', 'abc'::bytea, 'ep1',    's1____walter');
+    ('p____swidget',  't________ws3', 'u_____walter', 'tok___walter', 'abc'::bytea, 'ep1',    's3____walter');
   insert into session_host_set_host
     (session_id, host_set_id, host_id)
   values
-    ('s1____walter', 's___1ws-sths', 'h_____ws__01');
+    ('s3____walter', 's___1ws-sths', 'h_____ws__01');
   insert into session_credential_dynamic
     ( session_id,     library_id,     credential_id,  credential_purpose)
   values
-    ('s1____walter',  'vscl____wvl1', null,           'injected_application');
+    ('s3____walter',  'vscl____wvl3', null,           'injected_application');
   select is(count(*), 1::bigint) from wh_credential_dimension where organization_id = 'o_____widget';
 
   prepare select_credential_dimensions as
@@ -41,10 +41,10 @@ begin;
     $$VALUES
     (
       'injected_application',
-      'vscl____wvl1',                    'vault ssh certificate credential library', 'widget ssh admin cert',        'None',                               '/ssh/issue/admin',                     'Not Applicable',                           'Not Applicable',
-      'admin',                           'rsa-4096',
+      'vscl____wvl3',                    'vault ssh certificate credential library', 'widget ssh ed25519',           'None',                               '/ssh/sign/user',                       'Not Applicable',                           'Not Applicable',
+      'user',                            'ed25519',
       'vs______swvs',                    'vault credential store',                   'small widget vault store',     'None',                               'default',                              'https://small.vault.widget',
-      't_________ws',                    'tcp target',                               'Small Widget Target',          'None',                               0,                                      28800,                                      -1,
+      't________ws3',                    'tcp target',                               'Small Widget Target 3',        'None',                               0,                                      28800,                                      -1,
       'p____swidget',                    'Small Widget Factory',                     'None',
       'o_____widget',                    'Widget Inc',                               'None',
       'Current'

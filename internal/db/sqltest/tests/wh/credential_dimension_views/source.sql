@@ -25,7 +25,7 @@ begin;
     'None',                             -- credential_library_description,
     '/secrets',                         -- credential_library_vault_path,
     'GET',                              -- credential_library_vault_http_method,
-    'None',                             -- credential_library_vault_http_request_body,
+    'Not Applicable',                   -- credential_library_vault_http_request_body,
 
     'Not Applicable',                   -- credential_library_username,
     'Not Applicable',                   -- credential_library_key_type_and_bits,

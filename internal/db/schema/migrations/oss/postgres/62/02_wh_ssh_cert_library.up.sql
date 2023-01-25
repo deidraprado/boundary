@@ -8,6 +8,14 @@ begin;
     credential_library_username = 'Not Applicable',
     credential_library_key_type_and_bits = 'Not Applicable';
 
+  update wh_credential_dimension set
+    credential_library_vault_http_request_body = 'Not Applicable'
+  where
+    credential_library_vault_http_method = 'GET'
+  and
+    credential_library_vault_http_request_body = 'None';
+
+
   alter table wh_credential_dimension
     alter column credential_library_username type wh_dim_text,
     alter column credential_library_key_type_and_bits type wh_dim_text
@@ -24,44 +32,23 @@ begin;
   drop view whx_credential_dimension_source;
   create view whx_credential_dimension_source as
        select -- id is the first column in the target view
-              s.public_id                              as session_id,
-              coalesce(scd.credential_purpose, 'None') as credential_purpose,
-              cl.public_id                             as credential_library_id,
+              s.public_id                                          as session_id,
+              coalesce(scd.credential_purpose, 'None')             as credential_purpose,
+              cl.public_id                                         as credential_library_id,
               case
                 when   vcl.public_id is not null then 'vault generic credential library'
                 when vsccl.public_id is not null then 'vault ssh certificate credential library'
-                else 'None'
-                end                                    as credential_library_type,
-              case
-                when   vcl.public_id is not null then coalesce(  vcl.name, 'None')
-                when vsccl.public_id is not null then coalesce(vsccl.name, 'None')
                 else 'Unknown'
-              end                                      as credential_library_name,
+                end                                                as credential_library_type,
+              coalesce(vcl.name, vsccl.name, 'None')               as credential_library_name,
+              coalesce(vcl.description, vsccl.description, 'None') as credential_library_description,
+              coalesce(vcl.vault_path, vsccl.vault_path)           as credential_library_vault_path,
+              coalesce(vcl.http_method, 'Not Applicable')          as credential_library_vault_http_method,
               case
-                when   vcl.public_id is not null then coalesce(  vcl.description, 'None')
-                when vsccl.public_id is not null then coalesce(vsccl.description, 'None')
-                else 'Unknown'
-              end                                      as credential_library_description,
-              case
-                when   vcl.public_id is not null then vcl.vault_path
-                when vsccl.public_id is not null then vsccl.vault_path
-                else 'Unknown'
-              end                                      as credential_library_vault_path,
-              case
-                when   vcl.public_id is not null then vcl.http_method
-                when vsccl.public_id is not null then 'Not Applicable'
-                else 'Unknown'
-              end                                      as credential_library_vault_http_method,
-              case
-                when   vcl.public_id is not null then coalesce(vcl.http_request_body::text, 'None')
-                when vsccl.public_id is not null then 'Not Applicable'
-                else 'Unknown'
-              end                                      as credential_library_vault_http_request_body,
-              case
-                when   vcl.public_id is not null then 'Not Applicable'
-                when vsccl.public_id is not null then vsccl.username
-                else 'Unknown'
-              end                                      as credential_library_username,
+                when vcl.http_method = 'GET' then 'Not Applicable'
+                else coalesce(vcl.http_request_body::text, 'Not Applicable')
+              end                                                  as credential_library_vault_http_request_body,
+              coalesce(vsccl.username, 'Not Applicable')           as credential_library_username,
               case
                 when   vcl.public_id is not null then 'Not Applicable'
                 when vsccl.public_id is not null then
@@ -70,29 +57,29 @@ begin;
                     else vsccl.key_type || '-' || vsccl.key_bits::text
                   end
                 else 'Unknown'
-              end                                      as credential_library_key_type_and_bits,
-              cs.public_id                             as credential_store_id,
+              end                                                  as credential_library_key_type_and_bits,
+              cs.public_id                                         as credential_store_id,
               case
                 when vcs is null then 'None'
                 else 'vault credential store'
-                end                                    as credential_store_type,
-              coalesce(vcs.name, 'None')               as credential_store_name,
-              coalesce(vcs.description, 'None')        as credential_store_description,
-              coalesce(vcs.namespace, 'None')          as credential_store_vault_namespace,
-              coalesce(vcs.vault_address, 'None')      as credential_store_vault_address,
-              t.public_id                              as target_id,
-              'tcp target'                             as target_type,
-              coalesce(tt.name, 'None')                as target_name,
-              coalesce(tt.description, 'None')         as target_description,
-              coalesce(tt.default_port, 0)             as target_default_port_number,
-              tt.session_max_seconds                   as target_session_max_seconds,
-              tt.session_connection_limit              as target_session_connection_limit,
-              p.public_id                              as project_id,
-              coalesce(p.name, 'None')                 as project_name,
-              coalesce(p.description, 'None')          as project_description,
-              o.public_id                              as organization_id,
-              coalesce(o.name, 'None')                 as organization_name,
-              coalesce(o.description, 'None')          as organization_description
+              end                                                  as credential_store_type,
+              coalesce(vcs.name, 'None')                           as credential_store_name,
+              coalesce(vcs.description, 'None')                    as credential_store_description,
+              coalesce(vcs.namespace, 'None')                      as credential_store_vault_namespace,
+              coalesce(vcs.vault_address, 'None')                  as credential_store_vault_address,
+              t.public_id                                          as target_id,
+              'tcp target'                                         as target_type,
+              coalesce(tt.name, 'None')                            as target_name,
+              coalesce(tt.description, 'None')                     as target_description,
+              coalesce(tt.default_port, 0)                         as target_default_port_number,
+              tt.session_max_seconds                               as target_session_max_seconds,
+              tt.session_connection_limit                          as target_session_connection_limit,
+              p.public_id                                          as project_id,
+              coalesce(p.name, 'None')                             as project_name,
+              coalesce(p.description, 'None')                      as project_description,
+              o.public_id                                          as organization_id,
+              coalesce(o.name, 'None')                             as organization_name,
+              coalesce(o.description, 'None')                      as organization_description
       from session_credential_dynamic as scd
         join session            as s  on scd.session_id = s.public_id
         join credential_library as cl on scd.library_id = cl.public_id

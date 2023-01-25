@@ -1,5 +1,5 @@
 begin;
-  select plan(15);
+  select plan(17);
   select wtt_load('widgets', 'iam', 'kms', 'auth', 'hosts', 'targets', 'credentials');
 
   -- validate default values
@@ -12,7 +12,7 @@ begin;
   prepare select_vault_ssh_cert_libraries as
     select public_id::text, store_id::text, name::text, description::text, vault_path, username, key_type, key_bits, ttl, key_id, critical_options, extensions, credential_type, project_id::text
     from credential_vault_ssh_cert_library
-    where public_id in ('vl______vsc1', 'vl______vsc3')
+    where public_id in ('vl______vsc1', 'vl______vsc3','vl______vsc4','vl______vsc5','vl______vsc6')
     order by public_id;
 
   prepare select_libraries as
@@ -25,8 +25,9 @@ begin;
   select results_eq(
     'select_vault_ssh_cert_libraries',
     $$VALUES
-      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
   );
+
 
   prepare insert_invalid_key_type as
     insert into credential_vault_ssh_cert_library
@@ -86,8 +87,8 @@ begin;
   select results_eq(
     'select_vault_ssh_cert_libraries',
     $$VALUES
-      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
-      ('vl______vsc3', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc3', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
   );
 
   select results_eq(
@@ -104,13 +105,31 @@ begin;
   select results_eq(
     'select_vault_ssh_cert_libraries',
     $$VALUES
-      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', 0, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
   );
 
   select results_eq(
     'select_libraries',
     $$VALUES
       ('vl______vsc1', 'vs_______wvs', 'ssh_certificate', 'p____bwidget')$$
+  );
+
+  prepare insert_using_default_key_bits as
+    insert into credential_vault_ssh_cert_library
+      (store_id,       public_id,      vault_path,      username, key_type)
+    values
+      ('vs_______wvs', 'vl______vsc4', '/ssh/sign/foo', 'bar', 'ed25519'),
+      ('vs_______wvs', 'vl______vsc5', '/ssh/sign/foo', 'bar', 'ecdsa'),
+      ('vs_______wvs', 'vl______vsc6', '/ssh/sign/foo', 'bar', 'rsa');
+  select lives_ok('insert_using_default_key_bits');
+
+  select results_eq(
+    'select_vault_ssh_cert_libraries',
+    $$VALUES
+      ('vl______vsc1', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc4', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ed25519', null::int, null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc5', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'ecdsa',   256,       null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget'),
+      ('vl______vsc6', 'vs_______wvs', null, null, '/ssh/sign/foo', 'bar', 'rsa',     2048,      null, null, null::bytea, null::bytea, 'ssh_certificate', 'p____bwidget')$$
   );
 
 rollback;

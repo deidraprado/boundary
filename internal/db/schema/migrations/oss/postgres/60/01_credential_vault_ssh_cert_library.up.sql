@@ -45,7 +45,6 @@ begin;
       constraint only_predefined_key_bits_allowed
       check (
         bits in (
-          0,
           2048,
           3072,
           4096,
@@ -61,7 +60,6 @@ begin;
 
   insert into credential_vault_ssh_cert_key_bits_enm (bits)
   values
-    (0),
     (2048),
     (3072),
     (4096),
@@ -74,7 +72,7 @@ begin;
     key_type text not null
       constraint credential_vault_ssh_cert_key_type_enm_fkey
         references credential_vault_ssh_cert_key_type_enm (name),
-    key_bits int not null
+    key_bits int
       constraint credential_vault_ssh_cert_key_bits_enm_fkey
         references credential_vault_ssh_cert_key_bits_enm (bits),
     constraint credential_vault_ssh_cert_valid_key_type_key_bits_uq
@@ -83,13 +81,11 @@ begin;
 
   insert into credential_vault_ssh_cert_valid_key_type_key_bits (key_type, key_bits)
   values
-    ('ed25519', 0),
-    ('ecdsa', 0),
+    ('ed25519', null),
     ('ecdsa', 224),
     ('ecdsa', 256),
     ('ecdsa', 384),
     ('ecdsa', 521),
-    ('rsa', 0),
     ('rsa', 2048),
     ('rsa', 3072),
     ('rsa', 4096);
@@ -116,8 +112,7 @@ begin;
       default 'ed25519'
       constraint credential_vault_ssh_cert_key_type_enm_fkey
         references credential_vault_ssh_cert_key_type_enm (name),
-    key_bits int not null
-      default 0
+    key_bits int
       constraint credential_vault_ssh_cert_key_bits_enm_fkey
         references credential_vault_ssh_cert_key_bits_enm (bits),
     ttl text,
@@ -155,8 +150,27 @@ begin;
   comment on function default_ssh_certificate_credential_type is
     'default_ssh_certificate_credential_type ensures the credential_type is set to ssh_certificate';
 
+  create function default_ssh_certificate_key_bits() returns trigger
+  as $$
+  begin
+    if new.key_bits is null then
+      case
+      when new.key_type = 'ecdsa' then
+        new.key_bits = 256;
+      when new.key_type = 'rsa' then
+        new.key_bits = 2048;
+      else
+        new.key_bits = null;
+      end case;
+    end if;
+    return new;
+  end;
+  $$ language plpgsql;
+
   create trigger default_ssh_certificate_credential_type before insert on credential_vault_ssh_cert_library
     for each row execute procedure default_ssh_certificate_credential_type();
+  create trigger default_ssh_certificate_key_bits before insert on credential_vault_ssh_cert_library
+    for each row execute procedure default_ssh_certificate_key_bits();
   create trigger insert_credential_library_subtype before insert on credential_vault_ssh_cert_library
     for each row execute procedure insert_credential_library_subtype();
   create trigger default_create_time_column before insert on credential_vault_ssh_cert_library
